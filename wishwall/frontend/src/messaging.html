@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        header {
+            display: flex;
+            gap: 700px;
+            position: fixed;
+            top: 0;
+
+            width: 200vh;
+
+        }
+
+        body {
+            background-color: rgb(243, 244, 245);
+        }
+
+        #part-1,
+        #part-2 {
+            display: flex;
+            gap: 17px;
+            margin-top: 3px;
+
+        }
+
+        #part-1 {
+            margin-left: 18px;
+        }
+
+        #brand {
+            font-size: 24px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #headerNav {
+            display: flex;
+            gap: 35px;
+            margin-top: 19.5px;
+            font-size: 17px;
+            margin-left: 17px;
+
+        }
+
+        #trendingLink,
+        #latestLink,
+        #communityLink {
+            text-decoration: none;
+            color: lightslategray;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #brandId {
+            text-decoration: none;
+            color: #4F46E5;
+        }
+
+        #part-2 {
+            margin-top: 15.5px;
+            font-size: 17px;
+            gap: 35px;
+
+        }
+
+        #btnmessage {
+            padding-top: -7px;
+            width: 150px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #cac8f2;
+            color: #635cec;
+            font-weight: 900;
+            font-size: 17px;
+            border: 1px solid  #cac8f2;;
+
+
+
+        }
+
+        #btnmessageDiv {
+            margin-top: -2px;
+        }
+
+        .bell {
+            margin-top: 7px;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        #side-01 {
+            display: grid;
+            grid-template-columns: 2fr 10fr;
+
+        }
+        #sideLogout{
+            margin-top: 200px;
+        }
+        
+
+        main {
+            margin: 80px;
+            margin-left: -5px;
+            position: fixed;
+            display: grid;
+            grid-template-columns: 2fr 10fr;
+
+        }
+
+        #brand-2 {
+            margin-top: 2px;
+            font-size: 20px;
+            margin-left: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4F46E5;
+            font-weight: bold;
+        }
+
+        #brand-3 {
+            font-size: 15px;
+            margin-top: -18px;
+            margin-left: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: gray;
+        }
+
+        #logo-01 {
+            margin-top: -5px;
+        }
+
+        a {
+            text-decoration: none;
+            
+
+
+        }
+
+        #sideNav {
+            /* margin-left: 18px; */
+            font-size: 20px;
+            padding-top: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+
+        #msgSideBar {
+            margin-left: 28px;
+        }
+
+        .sideElement {
+
+            width: 200px;
+            height: 50px;
+            border-radius: 10px;
+            /* background-color: red; */
+            text-align: center;
+            display: flex;
+            align-items: center;
+            color: gray;
+            padding-left: 4px;
+            
+        
+        }
+        .sideElement:hover{
+            color: white;
+            background-color: #928def;
+        }
+
+        #inviteButton {
+            padding: 4px;
+            width: 210px;
+            height: 50px;
+            font-size: 18px;
+            border-radius: 10px;
+            color: #4F46E5;
+            background-color: #cac8f2;
+            border: 1px solid #cac8f2;
+        }
+
+        #needHelp {
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-top: 30px;
+            width: 200px;
+            height: 50px;
+            padding: 010px 4px 3px 3px;
+            border-radius: 20px;
+            color: rgb(93, 93, 93);
+        }
+
+        #logOut {
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-top: -30px;
+            width: 200px;
+            height: 50px;
+            padding: 010px 4px 3px 3px;
+            border-radius: 20px
+        }
+
+        .bi-box-arrow-right {
+            color: rgb(195, 0, 0);
+        }
+
+        #msgArea {
+
+            margin-left: 50px;
+            margin-top: -5px;
+            width: 70.6vw;
+
+        }
+
+        #msgArea-2 {
+            display: flex;
+            justify-content: space-between;
+            width: 70vw;
+            height: 100px;
+            background-color: white;
+            align-items: center;
+            border-radius: 3px;
+            padding-left: 10px;
+        }
+
+        #chat-head-01 {
+            display: flex;
+            gap: 6px;
+
+        }
+
+        h4 {
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        #chat-head-02 {
+            display: flex;
+            gap: 30px;
+
+        }
+
+        .bi-telephone,
+        .bi-three-dots-vertical {
+            font-size: 20px;
+        }
+
+        #input-emoji {
+            width: 60vw;
+            padding-top: 350px;
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            
+
+        }
+        input{
+            width: 62vw;
+            height: 40px;
+            border-radius: 40px;
+            border: 1px solid #928def;
+
+        }
+
+        #smile{
+            font-size: 28px;
+            background-color: rgb(243, 244, 245);
+            border: 0px solid white;
+        
+        }
+        #smileDiv ,#sendDiv{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            
+
+        }
+        #send{
+            background-color:  #635cec;
+            padding-top: 2px;
+            border-radius: 5px;
+            font-size: 30px;
+            color: white;
+            border: 0px solid white;
+            
+
+        }
+        #message{
+            overflow: scroll ;
+            max-height: 590px; 
+            width: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        #element1{
+            margin-top: -1px;
+           
+
+        }
+        #element2{
+            margin-top: -10px;
+        }
+        
+        #element3{
+            margin-top: -10px;
+        }
+
+        #element4{
+            margin-top: -10px;
+
+        }
+        #element5{
+            margin-top: -10px;
+
+        }
+
+        
+        
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div id="part-1">
+            <h1 id="brand">
+
+                <a href="" id="brandId"><span>Global Pulse</span></a>
+            </h1>
+            <nav id="headerNav">
+                <div>
+                    <a href="./dummy.html" id="trendingLink">Trending</a>
+                </div>
+                <div>
+                    <a href="./dummy.html" id="latestLink">Latest</a>
+
+                </div>
+                <div>
+                    <a href="./dummy.html" id="communityLink">Community</a>
+
+                </div>
+
+            </nav>
+
+        </div>
+        <div id="part-2">
+
+            <div class="bell">
+                <span class="bi bi-bell"></span>
+            </div>
+            <div class="bell">
+                <span class="bi bi-gear"></span>
+            </div>
+            <div id="btnmessageDiv">
+                <button id="btnmessage">New Message</button>
+            </div>
+            <div>
+                <img src="" alt="" srcset="">
+            </div>
+        </div>
+    </header>
+    <main>
+        <aside id="msgSideBar">
+            <div id="side-01">
+                <div id="logo-01">
+                    <img src="./public/image/globe.png" width="60px" height="60px">
+                </div>
+                <div id="mama">
+                    <p id="brand-2">Global Pulse</p>
+                    <p id="brand-3">Global Discourse</p>
+
+                </div>
+            </div>
+
+
+            <div id="side-02">
+                <div id="sideNav">
+                    <p class="sideElement"  id="element1"><a href="./dummy.html" class="sideElement"><span class="bi bi-collection"> Dashboard</span></a></p>
+                    <p class="sideElement" id="element2"><a href="./dummy.html" class="sideElement"><span class="bi bi-chat-left"> Message</span></a></p>
+                    <p class="sideElement" id="element3"><a href="./dummy.html" class="sideElement"><span class="bi bi-archive"> Archive</span></a></p>
+                    <p class="sideElement" id="element4"><a href="./dummy.html" class="sideElement"><span class="bi bi-person-lines-fill"> Contacts</span></a></p>
+                    <p class="sideElement" id="element5"><a href="./dummy.html" class="sideElement"><span class="bi bi-clipboard-data"> Analytics</span></a></p>
+                </div>
+                <div id="sideLogout">
+                    <button id="inviteButton"><span class="bi bi-person-add"> Invite Member</span></button>
+                    <p id="needHelp"><span class="bi bi-patch-question"></span> Help</p>
+                    <p id="logOut"><a href="./index.html"><span class="bi bi-box-arrow-right"></span> Logout</a></p>
+                </div>
+
+            </div>
+
+        </aside>
+        <section id="msgArea">
+            <div id="msgArea-2">
+                <div id="chat-head-01">
+                    <div>
+                        <img src="./public/image/globe.png" width="60px" height="60px" style="border-radius: 70px;">
+                    </div>
+                    <h4>Global Philosophy</h4>
+                </div>
+                <div id="chat-head-02">
+                    <div>
+                        <span class="bi bi-telephone"></span>
+
+                    </div>
+                    <div>
+                        <span class="bi bi-three-dots-vertical"></span>
+
+                    </div>
+
+                </div>
+            </div>
+            <div style="background-color: #dedef0; height: 600px; ">
+
+
+                <div id="message">
+                    <dl id="message-dl">
+
+                    </dl>
+
+                </div>
+                <div id="input-emoji">
+                    <div id="inputDiv">
+                        <input type="text" placeholder="..........Type here......" id="info">
+
+                    </div>
+                    <div id="smileDiv">
+                        <button id="smile"><span class="bi bi-emoji-smile"></span></button>
+
+                    </div>
+                    <div id="sendDiv">
+                        <button id="send"><span class="bi bi-send"></span></button>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+</body>
+<script src="./messaging.js"></script>
+
+</html>
