@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const env = require("dotenv");
 const mongoose = require("mongoose");
-const user = require("./database");
+const user = require("./userdb");
 
 const bcrypt = require("bcrypt"); //time to hash baby, HelloWorld = $2b$04$85a7bY7JJLzHTVABoUCaE.Eimh7RUxN.yzO4T3u6TT4d2HhJB8vA6
 
@@ -41,40 +41,44 @@ app.post("/loginUser", async function(req,res){
     
     try{
         const {email, password} = req.body;
-        const hashPass = await bcrypt.hash(password, 3); //hash the received pass to later compare w the one in DB;
-
+        
         let correctEmail, correctPass;
-
+        
         let foundUser = await user.findOne({email}); //find the user in DB using email.
         
-
         //can replace this with ternary operator. [line 52 => 59]
         if(foundUser){
             correctPass = foundUser.password;
             
         } else {
-
+            
             res.status = 404;
             return res.send("User not found in DB, did you Register?");
         }
-
+        
+        // DONT TRY THIS LOL, every hash is not unique based on the number of salts..
+        // const hashPass = await bcrypt.hash(password, 3); //hash the received pass to later compare w the one in DB;
+        
         //email == correctEmail => no need to check this since obv u used the provided email to find in DB so obv its gonna return always true;
-        if(hashPass == correctPass){
+        if(await bcrypt.compare(password, correctPass)){
             res.status(200);
             return res.send("Login Successful");
         } else {
             
             res.status(400);
-            return res.send("We'll see about that..\n\n" +  correctPass + "\n\n" + hashPass);
+            return res.send("Nice try diddy... but wrong password");
         }
-
+        
     }
     catch(err) {
-
+        
         console.log("kuch toh hua hai..\n\n" + err.message + "\n\n" + err);
-
+        
     }
 })
+
+//Fetch Chats
+
 
 //industry practise: always keep app.listen and db/external connections at last
 
@@ -82,14 +86,6 @@ app.post("/loginUser", async function(req,res){
 app.listen(9090, function(){
     console.log("Server listening to port 9090");
 })
-
-mongoose.connect(process.env.DATABASE_SECRET)
-    .then(function(){
-        console.log("WE CONNECTED BABY");
-    })
-    .catch(function(err){
-        console.log("You suck at connections...\n\n" + err.message);
-    })
 
 /*
 import FastAPI from fastapi
@@ -100,3 +96,10 @@ def read_root():
     return "Read root"
 */
 
+mongoose.connect(process.env.DATABASE_SECRET)
+.then(function(){
+    console.log("WE CONNECTED BABY");
+})
+.catch(function(err){
+    console.log("You suck at connections...\n\n" + err.message);
+})
