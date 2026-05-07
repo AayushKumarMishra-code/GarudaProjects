@@ -27,24 +27,45 @@ app.post("/newUser", async function(req,res){
         
         const newUser = await user.create({name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
         res.send("data gaya :)");
-        res.status(200);
+        return res.status(200);
     }
     
     catch(err){
         res.status(500);
-        res.send("You suck at everything loserr, but specifically: \n\n" +  err.message);
+        return res.send("You suck at everything loserr, but specifically: \n\n" +  err.message);
     }
 })
 
 //Login logic
 app.post("/loginUser", async function(req,res){
-    const {email, pass} = req.body;
-
+    
     try{
+        const {email, password} = req.body;
+        const hashPass = await bcrypt.hash(password, 3); //hash the received pass to later compare w the one in DB;
 
-        if(await user.findOne({email: email}) && await user.findOne({password: await bcrypt.hash(pass, 3)})){
+        let correctEmail, correctPass;
+
+        let foundUser = await user.findOne({email}); //find the user in DB using email.
+        
+
+        //can replace this with ternary operator. [line 52 => 59]
+        if(foundUser){
+            correctPass = foundUser.password;
+            
+        } else {
+
+            res.status = 404;
+            return res.send("User not found in DB, did you Register?");
+        }
+
+        //email == correctEmail => no need to check this since obv u used the provided email to find in DB so obv its gonna return always true;
+        if(hashPass == correctPass){
             res.status(200);
             return res.send("Login Successful");
+        } else {
+            
+            res.status(400);
+            return res.send("We'll see about that..\n\n" +  correctPass + "\n\n" + hashPass);
         }
 
     }
