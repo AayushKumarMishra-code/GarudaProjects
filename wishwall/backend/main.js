@@ -21,9 +21,9 @@ app.post("/newUser", async function(req,res){
     try {
         const {name, email, password, age} = req.body;
         
-        if(await user.findOne({age: age})){
+        if(await user.findOne({email: email})){
             res.status(400);
-            return res.send("A user with this age already exists.!"); //lol
+            return res.send("A user with this email already exists.!"); 
         }
         
         const newUser = await user.create({id: await bcrypt.hash(id++, 3), name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
