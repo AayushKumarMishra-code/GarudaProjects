@@ -7,8 +7,13 @@ const msg = new mongoose.Schema({
         required: true
     },
 
-    name: {
+    id: {
         type: String,
+        required: true
+    },
+
+    name: {
+        type: String, 
         required: true
     },
 

@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const user = require("./userdb");
 
 const bcrypt = require("bcrypt"); //time to hash baby, HelloWorld = $2b$04$85a7bY7JJLzHTVABoUCaE.Eimh7RUxN.yzO4T3u6TT4d2HhJB8vA6
+const id = 1;
 
 env.config(); // NEVER LOG THIS, but always call this once. YOUR WHOLE ENV FILE IS PARSED WITH THIS FUNCTION (unencrypted)
 
@@ -25,7 +26,7 @@ app.post("/newUser", async function(req,res){
             return res.send("A user with this age already exists.!"); //lol
         }
         
-        const newUser = await user.create({name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
+        const newUser = await user.create({id: await bcrypt.hash(id++, 3), name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
         res.send("data gaya :)");
         return res.status(200);
     }
@@ -77,8 +78,24 @@ app.post("/loginUser", async function(req,res){
     }
 })
 
-//Fetch Chats
+//create Chats
+const msg = require("./chatdb");
 
+app.post("/newMsg", async function(req,res){
+    const {message, id} = req.body;
+    try {
+        msg.create({message, name, date: new Date.now()});
+        return res.send("Message sent successfully.");
+    }
+    catch {
+        return res.send("Skill issue... Message not sent.");
+    }
+})
+
+//get chats: last 5 chats as of rn
+app.get("/fetchMsgs", async function(req,res){
+    msg.find
+})
 
 //industry practise: always keep app.listen and db/external connections at last
 
