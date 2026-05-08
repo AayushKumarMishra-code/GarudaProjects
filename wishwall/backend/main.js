@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const user = require("./userdb");
 
 const bcrypt = require("bcrypt"); //time to hash baby, HelloWorld = $2b$04$85a7bY7JJLzHTVABoUCaE.Eimh7RUxN.yzO4T3u6TT4d2HhJB8vA6
-const id = 1;
+let id = 1;
 
 env.config(); // NEVER LOG THIS, but always call this once. YOUR WHOLE ENV FILE IS PARSED WITH THIS FUNCTION (unencrypted)
 
@@ -21,13 +21,14 @@ app.post("/newUser", async function(req,res){
     try {
         const {name, email, password, age} = req.body;
         
-        if(await user.findOne({email: email})){
+        if(await user.findOne({age})){
             res.status(400);
-            return res.send("A user with this email already exists.!"); 
+            return res.send("A user with this age already exists.!"); //lol, email krdunga baadme
         }
         
-        const newUser = await user.create({id: await bcrypt.hash(id++, 3), name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
+        const newUser = await user.create({id: /*await bcrypt.hash(id++, 3)*/ id, name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
         res.send("data gaya :)");
+        id = id + 1;
         return res.status(200);
     }
     
@@ -57,7 +58,7 @@ app.post("/loginUser", async function(req,res){
             return res.send("User not found in DB, did you Register?");
         }
         
-        // DONT TRY THIS LOL, every hash is not unique based on the number of salts..
+        // DONT TRY THIS => [imp] every hash is NOT unique based on the number of salts..
         // const hashPass = await bcrypt.hash(password, 3); //hash the received pass to later compare w the one in DB;
         
         //email == correctEmail => no need to check this since obv u used the provided email to find in DB so obv its gonna return always true;
@@ -82,22 +83,49 @@ app.post("/loginUser", async function(req,res){
 const msg = require("./chatdb");
 
 app.post("/newMsg", async function(req,res){
-    const {message, id} = req.body;
+    const {message, id} = req.body; // will be replaced by JWT...
+
+    //const {name} = await user.findOne({id}); NO NEED FOR THIS KYUKI IN MSG WE WANT TO STORE ONLY ID.
     try {
-        msg.create({message, name, date: new Date.now()});
-        return res.send("Message sent successfully.");
+        msg.create({id: id, message, time: Date.now()});
+        return res.send("Message sent successfully.\n" + message);
     }
-    catch {
-        return res.send("Skill issue... Message not sent.");
+    catch (err){
+        res.status(400);
+        return res.send("Skill issue... Message not sent.\n\n" + err); // highly unlikely to happen;
     }
 })
 
 //get chats: last 5 chats as of rn
+
+// [FIXED POTENTIAL BUG]: will have to replace this name wala logic with id, kyuki later on when the user can change the name, db will still store the old name if logic remains unchanged;
 app.get("/fetchMsgs", async function(req,res){
-    msg.find
+
+    try{
+        let sortedObjects = [];
+        let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
+
+        discreteObjects.forEach(async function(object){
+            const {id, message, time} = object;
+
+            const {name} = await user.findOne({id}); // didnt extract from DB kyuki the user can anytime change name, would result in name conflict if names are stored;
+
+            sortedObject = {name, message, time};
+
+            sortedObjects = [...sortedObjects, sortedObject];
+        })
+
+
+        //res.send(`nameArray: ${name}\n\ntimeArray: ${time}\n\nmsgContent: ${content}`);
+        res.send(sortedObjects); // 
+    }
+    catch(err){
+        res.status(400);
+        return res.send("ERROR, shayad msgs exist hi nahi krte DB m...\n\n"  + err);
+    }
 })
 
-//industry practise: always keep app.listen and db/external connections at last
+//industry practise: always keep app.listen and db/external connections at last;
 
 //main server starts
 app.listen(9090, function(){

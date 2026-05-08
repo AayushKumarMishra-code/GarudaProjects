@@ -8,12 +8,7 @@ const msg = new mongoose.Schema({
     },
 
     id: {
-        type: String,
-        required: true
-    },
-
-    name: {
-        type: String, 
+        type: Number,
         required: true
     },
 
@@ -25,4 +20,4 @@ const msg = new mongoose.Schema({
 
 })
 
-module.exports = msg;
+module.exports = mongoose.model("newMsg", msg);
