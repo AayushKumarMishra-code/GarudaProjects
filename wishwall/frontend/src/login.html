@@ -1,0 +1,60 @@
+<html>
+    <head>
+
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+            
+            .container {
+                border: solid 1px black;
+                width: 500px;
+                height: 250px;
+                padding: 100px;
+            }
+
+            input, button{
+                padding: 10px;
+                margin: 10px;
+            }
+        </style>
+    </head>
+
+
+    <body>
+        <form class="container">
+            <input type="text" placeholder="Username" id="userName" autofocus><br>
+            <input type="text" placeholder="Password" id="password"><br>
+            <button type="reset">RESET</button><br>
+            <button id="submit">SUBMIT</button>
+        </form>
+
+        <script>
+            //will be later fetched from MongoDB;
+            correctUname = prompt("Enter a username for this session");
+            correctPass = prompt("Enter a password for this session");
+            
+            if(!correctPass || !correctUname){
+                alert("Username or Password not set correctly for this session, Please use admin as both to login");
+                correctUname = correctPass =  "admin";
+            }
+
+            document.getElementById("submit").addEventListener("click", function (e){
+                e.preventDefault();
+
+                uname = document.getElementById("userName");
+                password = document.getElementById("password");
+                
+                if(uname == correctUname && password == correctPass){
+                    alert("Login successful!");
+                } else {
+                    alert("You suck loser!");
+                    uname.value = password.value = "";
+                }
+            })
+        </script>
+    </body>
+</html>
