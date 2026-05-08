@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require("express");
 const app = express();
 const env = require("dotenv");
@@ -100,29 +102,70 @@ app.post("/newMsg", async function(req,res){
 
 // [FIXED POTENTIAL BUG]: will have to replace this name wala logic with id, kyuki later on when the user can change the name, db will still store the old name if logic remains unchanged;
 app.get("/fetchMsgs", async function(req,res){
+    let sortedObjects = [];
 
     try{
-        let sortedObjects = [];
+
         let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
 
-        discreteObjects.forEach(async function(object){
-            const {id, message, time} = object; // msgObject se jo id nikali woh user DB me search krke return user ka Naam.
+        sortedObjects = await Promise.all(
+            discreteObjects.map(async function(object){
+                const {id, time, message} = object;
 
-            const {name} = await user.findOne({id}); // didnt extract from DB kyuki the user can anytime change name, would result in name conflict if names are stored;
+                const{name} = await user.findOne({id});
 
-            console.log(name);
-            sortedObject = {name, message, time};
+                return {time, message, name};
+            })
 
-            sortedObjects = [...sortedObjects, sortedObject];
-        })
+        );
+        return res.send(sortedObjects);
+
+        // let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
+        //    // return res.send
+
+        //    await Promise.all(
+
+        //         discreteObjects.forEach(async function(object){
+        //             const {id, message, time} = object; // msgObject se jo id nikali woh user DB me search krke return user ka Naam.
+
+        //             const {name} = await user.findOne({id}); // didnt extract from DB kyuki the user can anytime change name, would result in name conflict if names are stored;
 
 
-        //res.send(`nameArray: ${name}\n\ntimeArray: ${time}\n\nmsgContent: ${content}`);
-        res.send(sortedObjects); // 
+        //             const so = {name:name, message:message, time:time};
+
+        //             //console.log(name, sortedObject)
+        //             //console.log(sortedObject);
+
+        //             console.log(so);
+        //             //sortedObjects.push({name: "Udhay", message: "Hello World"});
+        //             sortedObjects = [...sortedObjects, so];// WILL WORK ANY OF THE GIVEN WAYS.
+
+        //         })
+        // )
+        
+        // console.log(sortedObjects)// [] WHYYYY???????? => Cuz of event loop dummy!!! [WORKING OF ASYNC FUNCTIONS BRUH]
+        // return res.send(sortedObjects);
     }
+
     catch(err){
         res.status(400);
         return res.send("ERROR, shayad msgs exist hi nahi krte DB m...\n\n"  + err);
+    }
+    // finally {
+        
+    //     return res.send({sortedObjects}); //lemme see if this works.
+    // }
+})
+
+//change name logic
+app.get("/updateUser", async function(req,res){
+    try {
+        const {name, email, password, age, id} = req.body; //will be changed to JWT later...
+        
+        user.findOneAndUpdate({id})
+    }
+    catch (err){
+
     }
 })
 
