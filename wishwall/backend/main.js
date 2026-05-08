@@ -106,10 +106,11 @@ app.get("/fetchMsgs", async function(req,res){
         let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
 
         discreteObjects.forEach(async function(object){
-            const {id, message, time} = object;
+            const {id, message, time} = object; // msgObject se jo id nikali woh user DB me search krke return user ka Naam.
 
             const {name} = await user.findOne({id}); // didnt extract from DB kyuki the user can anytime change name, would result in name conflict if names are stored;
 
+            console.log(name);
             sortedObject = {name, message, time};
 
             sortedObjects = [...sortedObjects, sortedObject];
