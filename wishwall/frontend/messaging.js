@@ -29,7 +29,7 @@ document.querySelector("#send").addEventListener("click", function(e){
     
     const{userName:currentUserName}= currentUser[currentUser.length -1]//reason for this line to access the current userName // todo 3: fetch userId from localStorage in global scope;
 // check wheather a id is already present or not!!!!!!!
-    if(ExistingmessageId==currentUserId){
+    if(ExistingmessageId!=currentUserId){
 
         messageData = [...messageData,{userName:currentUserName,userId:currentUserId,messageId: msg, message :recentMessage }]
     }
@@ -43,7 +43,7 @@ document.querySelector("#send").addEventListener("click", function(e){
 
 
 
-//delete message
+//delete message deletemsg(${messageID})
 
 function deletemsg(messageId){
     messageData= messageData.filter(function(messageData){
@@ -54,7 +54,6 @@ function deletemsg(messageId){
 
 }
 
-//updation of message
 
 function update(messageId){
     const{UserName ,userId ,messageId , message} = messageData.find(function(messageData){
