@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 .env
 node_modules
 package.json
 package-lock.json
->>>>>>> b771169 (added package.json and package-lock.json)
