@@ -1,7 +1,10 @@
 "use strict";
 
+// DEPENDENCIES --------------------------------------------
+
 const express = require("express");
 const app = express();
+const path = require("path");
 const env = require("dotenv");
 const mongoose = require("mongoose");
 const user = require("./userdb");
@@ -11,15 +14,20 @@ let id;
 
 env.config(); // NEVER LOG THIS, but always call this once. YOUR WHOLE ENV FILE IS PARSED WITH THIS FUNCTION (unencrypted)
 
-app.use(express.json()); //middleware (untuk) lol json parsing
+//MIDDLEWARE -------------------------------------------------
 
-app.get("/", async function(request,response){
+app.use(express.json());                                        //JSON PARSING
+app.use(express.static(path.join(__dirname, "../frontend")));   // load frontend webpages; => makes a super repo (backend + frontend in same host)
+
+// Root function (optional) -----------------------------------------
+app.get("/api/", async function(request,response){
         return response.send("How'd you end up here buddy?!");
 
 })
 
-//endpoint for newusers: Registration
-app.post("/newUser", async function(req,res){
+//endpoint for newusers: Registration --------------------------------
+
+app.post("api/newUser", async function(req,res){
     
     try {
         const {name, email, password, age} = req.body;
@@ -29,7 +37,7 @@ app.post("/newUser", async function(req,res){
             return res.send("A user with this age already exists.!"); //lol, email krdunga baadme
         }
         
-        const newUser = await user.create({id: /*await bcrypt.hash(id++, 3)*/ id, name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
+        const newUser = await user.create({id:id, name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
         res.send("data gaya :)");
         id = id + 1;
         return res.status(200);
@@ -41,8 +49,9 @@ app.post("/newUser", async function(req,res){
     }
 })
 
-//Login logic
-app.post("/loginUser", async function(req,res){
+//Login logic -----------------------------------------------------
+
+app.post("api/loginUser", async function(req,res){
     
     try{
         const {email, password} = req.body;
@@ -82,10 +91,11 @@ app.post("/loginUser", async function(req,res){
     }
 })
 
-//create Chats
+//create Chats -------------------------------------------------------
+
 const msg = require("./chatdb");
 
-app.post("/newMsg", async function(req,res){
+app.post("api/newMsg", async function(req,res){
     const {message, id} = req.body; // will be replaced by JWT...
 
     //const {name} = await user.findOne({id}); NO NEED FOR THIS KYUKI IN MSG WE WANT TO STORE ONLY ID.
@@ -99,10 +109,10 @@ app.post("/newMsg", async function(req,res){
     }
 })
 
-//get chats: last 5 chats as of rn
+//get chats: last 5 chats as of rn ------------------------------------------------
 
 // [FIXED POTENTIAL BUG]: will have to replace this name wala logic with id, kyuki later on when the user can change the name, db will still store the old name if logic remains unchanged;
-app.get("/fetchMsgs", async function(req,res){
+app.get("api/fetchMsgs", async function(req,res){
     let sortedObjects = [];
 
     try{
@@ -119,7 +129,7 @@ app.get("/fetchMsgs", async function(req,res){
             })
 
         );
-        return res.send(sortedObjects);
+        return res.send(sortedObjects.reverse()); // sends the array in the order (5th last msg, 4th last...);
 
         // let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
 
@@ -156,7 +166,7 @@ app.get("/fetchMsgs", async function(req,res){
 })
 
 //change name logic
-app.get("/updateUser", async function(req,res){
+app.get("api/updateUser", async function(req,res){
     try {
         const {name, email, password, age, id} = req.body; //will be changed to JWT later...
         
@@ -169,19 +179,11 @@ app.get("/updateUser", async function(req,res){
 
 //industry practise: always keep app.listen and db/external connections at last;
 
-//main server starts
+//  init ----------------------------------------------------
+
 app.listen(9090, function(){
     console.log("Server listening to port 9090");
 })
-
-/*
-import FastAPI from fastapi
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return "Read root"
-*/
 
 mongoose.connect(process.env.DATABASE_SECRET)
 .then(async function(){
@@ -191,7 +193,7 @@ mongoose.connect(process.env.DATABASE_SECRET)
         let [{id:val}] = fetch;
         id = val;
     }
-    catch(err) {console.log("last id fetch err");}
+    catch(err) {console.log("last id fetch err"); id = 1;}
 
 })
 .catch(function(err){
