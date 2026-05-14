@@ -46,9 +46,8 @@
 
             }
 
-            document.getElementById('submit').addEventListener('click', async function (e) {
-                e.preventDefault();
-
+            async function login(){
+                
                 console.log("loading...");
                 
                 const response = await fetch("/api/loginUser", {
@@ -69,9 +68,40 @@
                     }
 
                     loginSuccessful(data.name, data.id);
-                })
-                
 
+            }
+
+            async function register(){
+                
+                console.log("registering...");
+
+                const response = await fetch("/api/newUser", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: nameBox.value,
+                        email: emailBox.value,
+                        password: passwordBox.value,
+                        age: ageBox.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if(response.status == 400){
+
+                    return registerFailed(data.message);
+
+                } else if(response.status == 500){
+
+                    return console.log(data.message);
+
+                }
+
+                registerSuccessful();
+            }
 
             const loginTab = document.querySelector("#login");
             const registerTab = document.querySelector("#register");
@@ -84,6 +114,17 @@
                 that.classList.add("inactive");
 
             }
+
+            function handleSubmit(e){
+                e.preventDefault();
+                if(loginTab.classList.contains("active")){
+                    login(e);
+                } else {
+                    register(e);
+                }
+            }
+
+            sub.addEventListener("click", handleSubmit);
 
             registerTab.addEventListener("click", function(){
                 setActive(registerTab, loginTab);
