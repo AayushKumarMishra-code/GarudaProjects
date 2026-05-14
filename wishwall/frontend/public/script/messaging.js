@@ -558,6 +558,13 @@ async function updatemsg(messageid, msgcontent){
 
 }
 
+//logout
+
+document.querySelector("#logout").addEventListener("click", function(){
+    localStorage.clear();
+    window.location.href = "/";
+})
+
 // BONUS -------------------------------------------------
 const tone = new Audio("./public/audio/tick.mp3");
 tone.preload = "auto";
