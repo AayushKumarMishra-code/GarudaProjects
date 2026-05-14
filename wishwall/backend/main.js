@@ -41,7 +41,7 @@ app.post("/api/newUser", async function(req,res){
         const newUser = await user.create({id:id, name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
         res.send({message:"data gaya :)"});
         id = id + 1;
-        return res.status(200);
+        return
     }
     
     catch(err){
