@@ -193,6 +193,18 @@ app.get("/api/updateUser", async function(req,res){
     }
 })
 
+app.get("/api/deletePost", async function(req,res){
+    try {
+        const {messageid} = req.body;
+        await msg.deleteOne({messageid});
+        res.status(200).send("Message deleted successfully");
+        
+    } catch (err){
+        console.log(err);
+    }
+})
+
+
 //industry practise: always keep app.listen and db/external connections at last;
 
 //  init ----------------------------------------------------
