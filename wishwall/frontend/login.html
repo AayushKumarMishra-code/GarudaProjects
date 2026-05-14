@@ -12,7 +12,10 @@
             </div>
 
             <form>
-                <input type="text" class="field" placeholder="Enter username" id="userName" autofocus>
+
+                <input type="text" class="field" placeholder="Enter email" id="userName" autofocus>
+                <input type="text" class="field hidden" placeholder="Enter name" id="name">
+                <input type="number" class="field hidden" placeholder="Enter age" id="age">
                 <input type="password" class="field" placeholder="Enter password" id="password">
 
                 <div class="actions">
@@ -27,12 +30,24 @@
         <script>
             const emailBox = document.getElementById('userName')
             const passwordBox = document.getElementById('password')
+            const nameBox = document.getElementById('name');
+            const ageBox = document.getElementById('age');
             
             async function loginSuccessful(name, id){
                 console.log("login successful");
                 await localStorage.setItem("name", name);
                 await localStorage.setItem("userId", id);
                 window.location.href = "/messaging.html";
+            }
+
+            function registerSuccessful(){
+                alert("Registration successful!");
+                setActive(loginTab, registerTab);
+                sub.textContent = "LOGIN";
+                nameBox.classList.add("hidden");
+                ageBox.classList.add("hidden");
+
+                resetVal();
             }
 
             function loginFailed(reason){
@@ -127,31 +142,42 @@
             sub.addEventListener("click", handleSubmit);
 
             registerTab.addEventListener("click", function(){
-                setActive(registerTab, loginTab);
-                sub.textContent = "REGISTER";
-                
-                emailBox.placeholder = "Set a username";
-                passwordBox.placeholder = "Set a strong password";
-                
-                resetVal();
 
-            })
+                setActive(registerTab, loginTab);
+
+                sub.textContent = "REGISTER";
+
+                nameBox.classList.remove("hidden");
+                ageBox.classList.remove("hidden");
+
+                emailBox.placeholder = "Enter email";
+                passwordBox.placeholder = "Set a strong password";
+
+                resetVal();
+            });
 
             loginTab.addEventListener("click", function(){
+
                 setActive(loginTab,registerTab);
+
                 sub.textContent = "LOGIN";
 
-                emailBox.placeholder = "Enter username";
+                nameBox.classList.add("hidden");
+                ageBox.classList.add("hidden");
+
+                emailBox.placeholder = "Enter email";
                 passwordBox.placeholder = "Enter password";
 
                 resetVal();
-
-            })
+            });
             
             function resetVal(){
-                passwordBox.value = '';
-                emailBox.value = '';
-
+                function resetVal(){
+                    passwordBox.value = '';
+                    emailBox.value = '';
+                    nameBox.value = '';
+                    ageBox.value = '';
+                }
             }
         </script>
     </body>
