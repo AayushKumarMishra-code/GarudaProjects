@@ -1,40 +1,63 @@
-let messageData = [
-    {
-        userName: "Aayush",
-        userId: "23456",
-        messageId: "9009",
-        message: " hi we are here"
-    },
-    {cd
-        userName: "kkkkkk",
-        userId: "09999",
-        messageId: "9010",
-        message: " hi we are here"
-    }
-];
 
-let usersId = ["2345", "23456", "09999"];
-
-let currentUserId = usersId[usersId.length - 1];
-
-let msg = 100000;
-
-let count = 0;
-
-let updateWalaUserName;
-
-let updateWalaUserId;
-
+// Constants & stuff ----------------------------------
+const API = "/api" // jaha repo host ki hai basically uska url
+let messageData = [];
+let currentUserId = null; 
+let currentUserName = null;
 let ExistingmessageId = null;
 
+// DOM stuff ----------------------------------
+const messageBox = document.getElementById("message");
+const inp = document.querySelector("#inp");
+const send = document.querySelector("#send");
+
+// functions ------------------------------------
 
 
-let currentUser = messageData.filter(function (messageData) {
+// Check server status --------------------------  REDUNDANT SINCE ITS A SUPER REPO;
+async function chkstat(){
+    try{
+        const res = await fetch( `${API}/`);
+        if(res.status != 200){
+            throw new Error("Server down...");
+        }
+    } catch (err){
+        document.body.style.backgroundColor = "#004C54";
+        document.body.style.backgroundImage = "unset";
+        document.body.innerHTML = "<h1 style='text-align:center;margin-top:35vh; color:#990000; background-color:#0A0A0A'> SERVER DOWN.... </h1>";
+        console.log(err);
+    }
+}
+chkstat();
+getMsgs();
 
-    return messageData.userId == currentUserId;
+async function getMsgs(){
+    temp = await fetch(`${API}/fetchMsgs`);
+    try {
+        const res = await temp.json();
+        messageData = res;
+        currentUserId = await localStorage.getItem("userId");
+        currentUserName = await localStorage.getItem("name");
 
-});
+        console.log(currentUserId, currentUserName);
+        
+        render();
+        
+    } catch (err){
+        console.log("Error fetching messages...\n\n" + err);
+    }
+}
 
+
+
+
+let msg = 100000; //msg id (so that new message gets a new id, while login backend will give lastmsgid )
+
+
+// DNE IN BACKEND 
+// let updateWalaUserName;
+
+// let updateWalaUserId;
 
 
 // render logic here
@@ -63,7 +86,7 @@ function render() {
 
                 <p class="card-username" id="card-username">
 
-                    ${messageData.userName}
+                    ${messageData.name}
 
                 </p>
 
@@ -428,67 +451,46 @@ function render() {
 
 }
 
+
 render();
 
+async function sendMsg(){
 
+    const recentMessage = inp.value;
 
-
-
-
-
-
-
-document.querySelector("#send").addEventListener("click", function () {
-
-    ++msg;
-
-    const { value: recentMessage } = document.getElementById("inp");
-
-    if (recentMessage.trim() == "") {
-
+    if(recentMessage.trim() === ""){
         return;
+    }
+
+    try {
+
+        const res = await fetch(`${API}/newMsg`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json" //WHY?? NAHI SMJHA.
+            },
+            body: JSON.stringify({
+                message: recentMessage,
+                id: currentUserId
+            })
+        });
+
+        if(!res.ok){
+            throw new Error("Message not sent");
+        }
+
+        inp.value = "";
+
+        getMsgs();
 
     }
 
-    const { userName: currentUserName } = currentUser[currentUser.length - 1];
-
-
-
-    if (ExistingmessageId != currentUserId) {
-
-        messageData = [
-            ...messageData,
-            {
-                userName: currentUserName,
-                userId: currentUserId,
-                messageId: msg,
-                message: recentMessage
-            }
-        ];
-
+    catch(err){
+        console.log(err);
     }
+}
 
-    else {
-
-        messageData = [
-            ...messageData,
-            {
-                userName: updateWalaUserName,
-                userId: updateWalaUserId,
-                messageId: ExistingmessageId,
-                message: recentMessage
-            }
-        ];
-
-        ExistingmessageId = null;
-
-    }
-
-    document.querySelector("#inp").value = "";
-
-    render();
-
-});
+send.addEventListener("click", sendMsg);
 
 
 
@@ -509,26 +511,41 @@ function deletemsg(messageId) {
 
 
 
+// DNE IN BACKEND
 
-function update(messageId) {
+// function update(messageId) {
 
-    const {
-        userName,
-        userId,
-        messageId: msgId,
-        message
-    } = messageData.find(function (messageData) {
+//     const {
+//         userName,
+//         userId,
+//         messageId: msgId,
+//         message
+//     } = messageData.find(function (messageData) {
 
-        return messageData.messageId == messageId;
+//         return messageData.messageId == messageId;
 
-    });
+//     });
 
-    document.querySelector("#inp").value = message;
+//     document.querySelector("#inp").value = message;
 
-    updateWalaUserName = userName;
+//     updateWalaUserName = userName;
 
-    updateWalaUserId = userId;
+//     updateWalaUserId = userId;
 
-    ExistingmessageId = msgId;
+//     ExistingmessageId = msgId;
 
-}
+// }
+
+
+// BONUS -------------------------------------------------
+const tone = new Audio("./public/audio/tick.mp3");
+tone.preload = "auto";
+inp.addEventListener("keyup", function(e){
+    if(e.key === "Enter"){
+        sendMsg();
+    }
+    tone.currentTime = 0; // -- rewind for repeated replays --
+    tone.play().catch((err) => {console.log(err)});
+})
+
+// init ---------------------------------------------------

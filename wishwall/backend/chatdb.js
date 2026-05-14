@@ -15,6 +15,11 @@ const msg = new mongoose.Schema({
     time: {
         type: Date,
         required: true
+    },
+
+    messageid: {
+        type: Number,
+        required: true
     }
 
 

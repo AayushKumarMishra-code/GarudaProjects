@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const user = require("./userdb");
 
 const bcrypt = require("bcrypt"); //time to hash baby, HelloWorld = $2b$04$85a7bY7JJLzHTVABoUCaE.Eimh7RUxN.yzO4T3u6TT4d2HhJB8vA6
-let id;
+let id, messageid;
 
 env.config(); // NEVER LOG THIS, but always call this once. YOUR WHOLE ENV FILE IS PARSED WITH THIS FUNCTION (unencrypted)
 
@@ -21,13 +21,14 @@ app.use(express.static(path.join(__dirname, "../frontend")));   // load frontend
 
 // Root function (optional) -----------------------------------------
 app.get("/api/", async function(request,response){
+        response.status(200);
         return response.send("How'd you end up here buddy?!");
 
 })
 
 //endpoint for newusers: Registration --------------------------------
 
-app.post("api/newUser", async function(req,res){
+app.post("/api/newUser", async function(req,res){
     
     try {
         const {name, email, password, age} = req.body;
@@ -51,7 +52,7 @@ app.post("api/newUser", async function(req,res){
 
 //Login logic -----------------------------------------------------
 
-app.post("api/loginUser", async function(req,res){
+app.post("/api/loginUser", async function(req,res){
     
     try{
         const {email, password} = req.body;
@@ -66,8 +67,7 @@ app.post("api/loginUser", async function(req,res){
             
         } else {
             
-            res.status = 404;
-            return res.send("User not found in DB, did you Register?");
+            return res.status(202).send("User not found in DB, did you Register?");
         }
         
         // DONT TRY THIS => [imp] every hash is NOT unique based on the number of salts..
@@ -75,12 +75,11 @@ app.post("api/loginUser", async function(req,res){
         
         //email == correctEmail => no need to check this since obv u used the provided email to find in DB so obv its gonna return always true;
         if(await bcrypt.compare(password, correctPass)){
-            res.status(200);
-            return res.send("Login Successful");
+            
+            return res.status(200).json({id: foundUser.id, name: foundUser.name});
         } else {
             
-            res.status(400);
-            return res.send("Nice try diddy... but wrong password");
+            return res.status(201).send("Nice try diddy... but wrong password");
         }
         
     }
@@ -95,13 +94,15 @@ app.post("api/loginUser", async function(req,res){
 
 const msg = require("./chatdb");
 
-app.post("api/newMsg", async function(req,res){
+app.post("/api/newMsg", async function(req,res){
     const {message, id} = req.body; // will be replaced by JWT...
 
     //const {name} = await user.findOne({id}); NO NEED FOR THIS KYUKI IN MSG WE WANT TO STORE ONLY ID.
     try {
-        msg.create({id: id, message, time: Date.now()});
-        return res.send("Message sent successfully.\n" + message);
+        const obj = {id: id, message, time: Date.now(), messageid}
+        await msg.create(obj);
+        messageid++;
+        return res.status(200).json(obj);
     }
     catch (err){
         res.status(400);
@@ -112,24 +113,50 @@ app.post("api/newMsg", async function(req,res){
 //get chats: last 5 chats as of rn ------------------------------------------------
 
 // [FIXED POTENTIAL BUG]: will have to replace this name wala logic with id, kyuki later on when the user can change the name, db will still store the old name if logic remains unchanged;
-app.get("api/fetchMsgs", async function(req,res){
-    let sortedObjects = [];
+app.get("/api/fetchMsgs", async function(req,res){
 
-    try{
+    try {
 
-        let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
+        let discreteObjects = await msg.find()
+        .sort({$natural: -1})
+        .limit(5);
 
-        sortedObjects = await Promise.all(
-            discreteObjects.map (async function(object){
-                const {id, time, message} = object;
+        const sortedObjects = await Promise.all(
 
-                const{name} = await user.findOne({id});
+            discreteObjects.map(async function(object){
 
-                return {time, message, name};
+                const {id, time, message, messageid} = object;
+
+                const foundUser = await user.findOne({id});
+
+                return {
+
+                    time,
+                    message,
+                    messageid,
+
+                    name: foundUser
+                    ? foundUser.name
+                    : "Unknown User"
+
+                };
+
             })
 
         );
-        return res.send(sortedObjects.reverse()); // sends the array in the order (5th last msg, 4th last...);
+
+        return res.status(200).json(sortedObjects.reverse());
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        return res.status(400).send(err.message);
+
+    }
+});
 
         // let discreteObjects = await msg.find().sort({$natural: -1}).limit(5);
 
@@ -153,20 +180,9 @@ app.get("api/fetchMsgs", async function(req,res){
         
         // console.log(sortedObjects)// [] WHYYYY???????? => Cuz of event loop dummy!!! [WORKING OF ASYNC FUNCTIONS BRUH]
         // return res.send(sortedObjects);
-    }
-
-    catch(err){
-        res.status(400);
-        return res.send("ERROR, shayad msgs exist hi nahi krte DB m...\n\n"  + err);
-    }
-    // finally {
-        
-    //     return res.send({sortedObjects}); //lemme see if this works.
-    // }
-})
 
 //change name logic
-app.get("api/updateUser", async function(req,res){
+app.get("/api/updateUser", async function(req,res){
     try {
         const {name, email, password, age, id} = req.body; //will be changed to JWT later...
         
@@ -185,6 +201,7 @@ app.listen(9090, function(){
     console.log("Server listening to port 9090");
 })
 
+
 mongoose.connect(process.env.DATABASE_SECRET)
 .then(async function(){
     console.log("WE CONNECTED BABY");
@@ -192,8 +209,20 @@ mongoose.connect(process.env.DATABASE_SECRET)
         const fetch =  await user.find().sort({$natural: -1}).limit(1);
         let [{id:val}] = fetch;
         id = val;
+    } catch (err){
+        console.log("last id fetch err");
+        id = 1;
     }
-    catch(err) {console.log("last id fetch err"); id = 1;}
+
+    try{
+        const lastmsg = await msg.find().sort({$natural: -1}).limit(1);
+        const [{messageid:mid}] = lastmsg;
+        messageid = mid;
+    
+    } catch(err) {
+        console.log("last msg fetch err");
+        messageid = 1;
+    }
 
 })
 .catch(function(err){
