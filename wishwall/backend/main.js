@@ -193,9 +193,15 @@ app.get("/api/updateUser", async function(req,res){
     }
 })
 
-app.get("/api/deletePost", async function(req,res){
+app.post("/api/deletePost", async function(req,res){
     try {
-        const {messageid} = req.body;
+        const {messageid, userid} = req.body;
+        const msgInQuestion = await msg.findOne({messageid});
+
+        if(userid != msgInQuestion.id){
+            return res.status(202).send("ERROR! You cannot delete smone else's msg!");
+        }
+
         await msg.deleteOne({messageid});
         res.status(200).send("Message deleted successfully");
         
@@ -204,6 +210,29 @@ app.get("/api/deletePost", async function(req,res){
     }
 })
 
+app.post("/api/updateMsg", async function(req,res){
+    try{
+        const {messageid, userid, msgcontent} = req.body;
+        const msgInQuestion = await msg.findOne({messageid});
+
+        if(userid != msgInQuestion.id){
+            return res.status(202).send("ERROR! You cannot update smone else's msg!");
+        }
+
+        if(msgcontent == msgInQuestion.message){
+            return res.status(203).send("ERROR! Message content should be different");
+        }
+
+        await msg.findOneAndUpdate({messageid}, {
+            message: msgcontent
+        })
+
+        return res.status(200).send("Success");
+
+    } catch (err){
+        console.log(err);
+    }
+})
 
 //industry practise: always keep app.listen and db/external connections at last;
 

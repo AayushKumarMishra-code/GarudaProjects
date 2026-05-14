@@ -10,6 +10,7 @@ let ExistingmessageId = null;
 const messageBox = document.getElementById("message");
 const inp = document.querySelector("#inp");
 const send = document.querySelector("#send");
+let selectoption = null;
 
 // functions ------------------------------------
 
@@ -59,7 +60,6 @@ let msg = 100000; //msg id (so that new message gets a new id, while login backe
 
 // let updateWalaUserId;
 
-
 // render logic here
 
 function render() {
@@ -70,11 +70,9 @@ function render() {
 
 
 
-    messageData.forEach(function (messageData) {
+    messageData.forEach(function (msgObject) {
 
         let div = document.createElement("div");
-
-
 
         div.innerHTML = `
 
@@ -86,7 +84,7 @@ function render() {
 
                 <p class="card-username" id="card-username">
 
-                    ${messageData.name}
+                    ${msgObject.name}
 
                 </p>
 
@@ -97,13 +95,13 @@ function render() {
             <div class="card-image-area">
 
                 ${
-                    messageData.image
+                    msgObject.image
                     ?
                     `
                     <div class="card-image-placeholder">
 
                         <img 
-                            src="${messageData.image}" 
+                            src="${msgObject.image}" 
                             width="100%"
                             height="80rem"
                             class="imageSmall"
@@ -119,7 +117,7 @@ function render() {
 
                 <p class="card-caption">
 
-                    ${messageData.message}
+                    ${msgObject.message}
 
                 </p>
 
@@ -150,9 +148,9 @@ function render() {
 
                     <label>Options</label>
 
-                    <select class="action-button-icon">
+                    <select class="action-button-icon" onchange="changeOption(this, \`${msgObject.messageid}\`)">
 
-                        <option value="default">default</option>
+                        <option value="default" disabled selected>default</option>
 
                         <option value="update">update</option>
 
@@ -454,6 +452,20 @@ function render() {
 
 render();
 
+
+async function changeOption(elem, messageid){
+    const num = Number(messageid);
+
+    if(elem.value == "delete"){
+        deletemsg(num).then(getMsgs)
+
+    } else if (elem.value == "update"){
+        const msgcontent = inp.value;
+        updatemsg(num, msgcontent).then(getMsgs)
+    }
+}
+
+
 async function sendMsg(){
 
     const recentMessage = inp.value;
@@ -493,49 +505,58 @@ async function sendMsg(){
 send.addEventListener("click", sendMsg);
 
 
+async function deletemsg(messageid) {
 
+    try{
+        console.log(messageid);
+        const res = await fetch(`${API}/deletePost`,{
+            method: "POST",
+            headers: {
+                    "Content-Type": "application/json" 
+                },
+            body: JSON.stringify({
+                messageid: messageid,
+                userid: currentUserId
+            })
+        })
+        
+        if(res.status == 202){
+            alert("🚫 You don't have the permission to perform this action!");
+        }
 
+    }catch(err){
+        console.log(err);
+    }
 
-function deletemsg(messageId) {
-
-    messageData = messageData.filter(function (messageData) {
-
-        return messageData.messageId != messageId;
-
-    });
-
-    render();
 
 }
 
+async function updatemsg(messageid, msgcontent){
 
+    try {
+        const res = await fetch(`${API}/updateMsg`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json" 
+            },
+            body: JSON.stringify({
+                msgcontent: msgcontent,
+                userid: currentUserId,
+                messageid: messageid
+            })
+        })
 
+        if(res.status == 202){
+            return alert("🚫 You don't have the permission to perform this action!");
+        } else if (res.status == 203){
+            return alert("ERROR! Message content should be different");
+        }
+    
+    } catch(err){
+        console.log(err);
+    }
 
-// DNE IN BACKEND
-
-// function update(messageId) {
-
-//     const {
-//         userName,
-//         userId,
-//         messageId: msgId,
-//         message
-//     } = messageData.find(function (messageData) {
-
-//         return messageData.messageId == messageId;
-
-//     });
-
-//     document.querySelector("#inp").value = message;
-
-//     updateWalaUserName = userName;
-
-//     updateWalaUserId = userId;
-
-//     ExistingmessageId = msgId;
-
-// }
-
+}
 
 // BONUS -------------------------------------------------
 const tone = new Audio("./public/audio/tick.mp3");
