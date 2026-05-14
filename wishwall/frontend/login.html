@@ -1,120 +1,6 @@
-<html>
+<!DOCTYPE html>
     <head>
-        <style>
-            body {
-                margin: 0;
-                height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-family: Arial, sans-serif;
-                background: linear-gradient(135deg, #31241F 15%, #7c1a11 100%);
-                color: #f4ece4;
-            }
-
-            .container {
-                width: 320px;
-                padding: 34px 24px;
-                border-radius: 24px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
-                border: 1px solid rgba(255,255,255,0.2);
-                box-shadow: 0 20px 45px rgba(0,0,0,0.35);
-            }
-
-            fieldset {
-                border: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            .tabs {
-                display: flex;
-                justify-content: center;
-                gap: 10px;
-                margin-bottom: 24px;
-            }
-
-            .tab {
-                flex: 1;
-                padding: 12px 0;
-                border: none;
-                border-radius: 999px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-
-            .tab.active {
-                background: linear-gradient(135deg, #b11f18, #5f1210);
-                color: #fff;
-            }
-
-            .tab.inactive {
-                background: rgba(255,255,255,0.12);
-                color: rgba(255,255,255,0.88);
-                border: 1px solid rgba(255,255,255,0.16);
-            }
-
-            .field {
-                width: 100%;
-                padding: 14px 16px;
-                margin-bottom: 16px;
-                border: none;
-                border-radius: 14px;
-                font-size: 15px;
-                background: rgba(255,255,255,0.92);
-                color: #1c1110;
-                box-sizing: border-box;
-            }
-
-            .actions {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .actions button {
-                flex: 1;
-                padding: 14px 0;
-                border: none;
-                border-radius: 14px;
-                font-size: 15px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-
-            .actions .reset {
-                background: rgba(255,255,255,0.16);
-                color: #f3ece4;
-            }
-
-            .actions .submit {
-                background: linear-gradient(135deg, #b11f18, #5f1210);
-                color: #fff;
-            }
-
-            .actions button:hover {
-                opacity: 0.95;
-            }
-
-            .google {
-                background: rgba(255,255,255,0.16);
-                color: #f3ece4;
-                margin-top: 20px;
-                margin-left: 60px;
-                border: unset;
-                border-radius: 20px;
-                width: 200px;
-                height: 50px;
-            }
-            
-            img {
-                height: 30px;
-                width: 25px;
-                margin-top: 10px;
-                margin-left: 0px;
-                
-            }
-        </style>
+        <link rel="stylesheet" href="./public/style/login.css">
     </head>
 
 
@@ -139,25 +25,53 @@
         </div>
 
         <script>
-            //will be fetched from mongodb - todo for 5th may
-
-            const correctUname = prompt("Enter a username for the session");
-            const correctPass = prompt("Enter a pass for this session");
+            const emailBox = document.getElementById('userName')
+            const passwordBox = document.getElementById('password')
             
-            const uname = document.getElementById('userName');
-            const password = document.getElementById('password');
+            async function loginSuccessful(name, id){
+                console.log("login successful");
+                await localStorage.setItem("name", name);
+                await localStorage.setItem("userId", id);
+                window.location.href = "/messaging.html";
+            }
 
-            document.getElementById('submit').addEventListener('click', function (e) {
+            function loginFailed(reason){
+                if(reason == "email"){
+                    alert("You suck loser... Register for an account first...");
+                    resetVal();
+                } else {
+                    alert("Wrong password brother... try again maybe?");
+                    resetVal();
+                }
+
+            }
+
+            document.getElementById('submit').addEventListener('click', async function (e) {
                 e.preventDefault();
 
-                if (uname.value === correctUname && password.value === correctPass) {
-                    alert('Login successful!');
-                } else {
-                    alert('You suck loser');
-                    uname.value = '';
-                    password.value = '';
-                }
-            });
+                console.log("loading...");
+                
+                const response = await fetch("/api/loginUser", {
+                    method: "POST",
+                    headers: {                                  //again idk why this exists
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({email: emailBox.value, password: passwordBox.value})
+                })
+                const data = await response.json();
+
+                    if(response.status == 202){
+                        return loginFailed("email");
+
+                    } else if (response.status == 201){
+
+                        return loginFailed("password");
+                    }
+
+                    loginSuccessful(data.name, data.id);
+                })
+                
+
 
             const loginTab = document.querySelector("#login");
             const registerTab = document.querySelector("#register");
@@ -175,11 +89,10 @@
                 setActive(registerTab, loginTab);
                 sub.textContent = "REGISTER";
                 
-                uname.placeholder = "Set a username";
-                password.placeholder = "Set a strong password";
+                emailBox.placeholder = "Set a username";
+                passwordBox.placeholder = "Set a strong password";
                 
-                uname.value = '';
-                password.value = '';
+                resetVal();
 
             })
 
@@ -187,12 +100,18 @@
                 setActive(loginTab,registerTab);
                 sub.textContent = "LOGIN";
 
-                userName.placeholder = "Enter username";
-                password.placeholder = "Enter password";
+                emailBox.placeholder = "Enter username";
+                passwordBox.placeholder = "Enter password";
 
-                uname.value = '';
-                password.value = '';
+                resetVal();
+
             })
+            
+            function resetVal(){
+                passwordBox.value = '';
+                emailBox.value = '';
+
+            }
         </script>
     </body>
 </html>
