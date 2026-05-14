@@ -33,20 +33,20 @@ app.post("/api/newUser", async function(req,res){
     try {
         const {name, email, password, age} = req.body;
         
-        if(await user.findOne({age})){
+        if(await user.findOne({email})){
             res.status(400);
-            return res.send("A user with this age already exists.!"); //lol, email krdunga baadme
+            return res.send({message:"A user with this email already exists.!"}); 
         }
         
         const newUser = await user.create({id:id, name: name, email: email, age: age, password: await bcrypt.hash(password, 3)});
-        res.send("data gaya :)");
+        res.send({message:"data gaya :)"});
         id = id + 1;
         return res.status(200);
     }
     
     catch(err){
         res.status(500);
-        return res.send("You suck at everything loserr, but specifically: \n\n" +  err.message);
+        return res.send({message:"You suck at everything loserr, but specifically: \n\n" +  err.message});
     }
 })
 
@@ -67,7 +67,7 @@ app.post("/api/loginUser", async function(req,res){
             
         } else {
             
-            return res.status(202).send("User not found in DB, did you Register?");
+            return res.status(202).send({message:"User not found in DB, did you Register?"});
         }
         
         // DONT TRY THIS => [imp] every hash is NOT unique based on the number of salts..
@@ -79,7 +79,7 @@ app.post("/api/loginUser", async function(req,res){
             return res.status(200).json({id: foundUser.id, name: foundUser.name});
         } else {
             
-            return res.status(201).send("Nice try diddy... but wrong password");
+            return res.status(201).send({message:"Nice try diddy... but wrong password"});
         }
         
     }
@@ -106,7 +106,7 @@ app.post("/api/newMsg", async function(req,res){
     }
     catch (err){
         res.status(400);
-        return res.send("Skill issue... Message not sent.\n\n" + err); // highly unlikely to happen;
+        return res.send({message:"Skill issue... Message not sent.\n\n" + err}); // highly unlikely to happen;
     }
 })
 
